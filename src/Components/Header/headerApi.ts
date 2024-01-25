@@ -100,6 +100,7 @@ type AddNewDrawingToUndoArrayType = {
   addUndoDrawing: () => UnknownAction;
   setUndoIndex: React.Dispatch<React.SetStateAction<number>>;
   context: CanvasRenderingContext2D | undefined;
+  setChosenSavedIndex: React.Dispatch<React.SetStateAction<number | undefined>>;
 };
 export const addNewDrawingToUndoArray = ({
   undo,
@@ -111,6 +112,7 @@ export const addNewDrawingToUndoArray = ({
   addUndoDrawing,
   setUndoIndex,
   context,
+  setChosenSavedIndex,
 }: AddNewDrawingToUndoArrayType) => {
   if (undo[undoIndex].length && undo.length !== saved.length) {
     dispatch(removeUndoDrawing());
@@ -120,7 +122,7 @@ export const addNewDrawingToUndoArray = ({
     dispatch(addUndoDrawing());
     setUndoIndex((prev) => prev + 1);
   }
-
+  setChosenSavedIndex(undefined)
   context?.clearRect(0, 0, context.canvas.width, context.canvas.height);
 };
 type AddCurrentImageToSavedType = {
@@ -133,6 +135,7 @@ type AddCurrentImageToSavedType = {
   undo: (string | null)[][];
   redo: (string | null)[][];
   addRedoDrawing: () => UnknownAction;
+  setChosenSavedIndex: React.Dispatch<React.SetStateAction<number | undefined>>;
 };
 export const addCurrentImageToSaved = ({
   context,
@@ -144,18 +147,20 @@ export const addCurrentImageToSaved = ({
   undo,
   redo,
   addRedoDrawing,
+  setChosenSavedIndex,
 }: AddCurrentImageToSavedType) => {
-  if (context && chosenSavedIndex === undefined) {
+  if (context && chosenSavedIndex === undefined && undo.length > saved.length) {
     const imgUrl = context.canvas.toDataURL();
     dispatch(addToSaved(imgUrl));
     console.log("add");
   } else if (
     context &&
     chosenSavedIndex !== undefined &&
-    saved[chosenSavedIndex]
+    saved[chosenSavedIndex] && undo.length === saved.length
   ) {
     console.log("update");
     const url = context.canvas.toDataURL();
+    // setChosenSavedIndex(undefined)
     dispatch(changeSaved({ url, chosenSavedIndex }));
   }
   if (undo.length !== redo.length) {

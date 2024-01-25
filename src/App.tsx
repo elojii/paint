@@ -23,9 +23,13 @@ export const App = () => {
   >();
   const [undoIndex, setUndoIndex] = useState<number>(0);
   const [currentImage, setCurrentImage] = useState<string>("");
-
+console.log(undo)
+console.log(saved.length)
+console.log(chosenSavedIndex)
+console.log(undoIndex)
   useEffect(() => {
     if (context && saved.length > 0 && chosenSavedIndex === undefined) {
+      console.log('asdsad')
       const img = new Image();
       img.src = currentImage;
       img.onload = () => {
@@ -44,6 +48,7 @@ export const App = () => {
   const openSavedDrawings = () => {
     if (saved.length > 0 && context) {
       setShowSaved((prev) => !prev);
+      setChosenSavedIndex(saved.length - 1)
     }
     if (context) {
       setCurrentImage(context.canvas.toDataURL());
@@ -62,6 +67,7 @@ export const App = () => {
           saved={saved}
           setUndoIndex={setUndoIndex}
           chosenSavedIndex={chosenSavedIndex}
+          setChosenSavedIndex={setChosenSavedIndex}
         />
         {!showSaved || saved.length === 0 ? (
           <Canvas

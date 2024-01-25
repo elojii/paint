@@ -43,6 +43,7 @@ type HeaderTypes = {
   saved: string[];
   setUndoIndex: React.Dispatch<React.SetStateAction<number>>;
   chosenSavedIndex: number | undefined;
+  setChosenSavedIndex: React.Dispatch<React.SetStateAction<number | undefined>>;
 };
 
 export const Header = ({
@@ -54,6 +55,7 @@ export const Header = ({
   saved,
   setUndoIndex,
   chosenSavedIndex,
+  setChosenSavedIndex,
 }: HeaderTypes) => {
   return (
     <>
@@ -128,6 +130,7 @@ export const Header = ({
               addUndoDrawing,
               setUndoIndex,
               context,
+              setChosenSavedIndex,
             })
           }
           style={{
@@ -150,6 +153,7 @@ export const Header = ({
               undo,
               redo,
               addRedoDrawing,
+              setChosenSavedIndex,
             });
           }}
           style={{
