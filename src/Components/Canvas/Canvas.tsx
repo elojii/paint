@@ -1,18 +1,11 @@
 import s from "./Canvas.module.css";
 import { useEffect, useRef, useState } from "react";
 import { checkForValidSize } from "../../utils/checkForValidSize";
-import { brushDraw, brushStart } from "../../tools/Brush";
-import {
-  rectangleDraw,
-  rectangleEnd,
-  rectangleStart,
-} from "../../tools/Rectangle";
-import { circleDraw, circleEnd, circleStart } from "../../tools/Circle";
-import { eraserDraw, eraserStart } from "../../tools/Eraser";
 import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "../../store";
-import { addToTheUndoURLs, addUndoDrawing } from "../../store/undoSlice";
+import { addUndoDrawing } from "../../store/undoSlice";
 import { TextField } from "@mui/material";
+import { draw, endDrawing, outDrawing, startDrawing } from "./canvasApi";
 
 type CanvasPropTypes = {
   context: CanvasRenderingContext2D | undefined;
@@ -41,7 +34,7 @@ export const Canvas = ({
   const chosenURL = useSelector(
     (state: RootState) => state.chosenURL.chosenURL
   );
-  const [drawing, setDrawing] = useState(false);
+  const [drawing, setDrawing] = useState<boolean>(false);
   const [height, setHeight] = useState<number>(600);
   const [width, setWidth] = useState<number>(800);
   const [startX, setStartX] = useState<number>(0);
@@ -100,82 +93,82 @@ export const Canvas = ({
     }
   }, [chosenURL, context]);
 
-  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!context) return;
+  // const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  //   if (!context) return;
 
-    switch (tool) {
-      case "Brush":
-        brushStart({ e, context, color, stroke });
-        break;
-      case "Rectangle":
-        rectangleStart({
-          e,
-          context,
-          color,
-          setStartX,
-          setStartY,
-          setImageURL,
-        });
-        break;
-      case "Circle":
-        circleStart({ e, context, color, setStartX, setStartY, setImageURL });
-        break;
-      case "Eraser":
-        eraserStart({ e, context });
-        break;
-      default:
-        brushStart({ e, context, color, stroke });
-    }
-    setDrawing(true);
-    const img = new Image();
-    img.src = context.canvas.toDataURL();
+  //   switch (tool) {
+  //     case "Brush":
+  //       brushStart({ e, context, color, stroke });
+  //       break;
+  //     case "Rectangle":
+  //       rectangleStart({
+  //         e,
+  //         context,
+  //         color,
+  //         setStartX,
+  //         setStartY,
+  //         setImageURL,
+  //       });
+  //       break;
+  //     case "Circle":
+  //       circleStart({ e, context, color, setStartX, setStartY, setImageURL });
+  //       break;
+  //     case "Eraser":
+  //       eraserStart({ e, context });
+  //       break;
+  //     default:
+  //       brushStart({ e, context, color, stroke });
+  //   }
+  //   setDrawing(true);
+  //   const img = new Image();
+  //   img.src = context.canvas.toDataURL();
 
-    dispatch(
-      addToTheUndoURLs({
-        chosenIndex: undoIndex,
-        undoURL: img.src,
-      })
-    );
-  };
+  //   dispatch(
+  //     addToTheUndoURLs({
+  //       chosenIndex: undoIndex,
+  //       undoURL: img.src,
+  //     })
+  //   );
+  // };
 
-  const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!context || !drawing) return;
+  // const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  //   if (!context || !drawing) return;
 
-    switch (tool) {
-      case "Brush":
-        brushDraw({ context, e });
-        break;
-      case "Rectangle":
-        rectangleDraw({ e, context, startX, startY, imageURL: imageURL || "" });
-        break;
-      case "Circle":
-        circleDraw({ e, context, startX, startY, imageURL: imageURL || "" });
-        break;
-      case "Eraser":
-        eraserDraw({ e, context });
-        break;
-      default:
-        brushDraw({ context, e });
-    }
-  };
+  //   switch (tool) {
+  //     case "Brush":
+  //       brushDraw({ context, e });
+  //       break;
+  //     case "Rectangle":
+  //       rectangleDraw({ e, context, startX, startY, imageURL: imageURL || "" });
+  //       break;
+  //     case "Circle":
+  //       circleDraw({ e, context, startX, startY, imageURL: imageURL || "" });
+  //       break;
+  //     case "Eraser":
+  //       eraserDraw({ e, context });
+  //       break;
+  //     default:
+  //       brushDraw({ context, e });
+  //   }
+  // };
 
-  const endDrawing = () => {
-    if (context) {
-      context.closePath();
-      rectangleEnd({ context, setImageURL });
-      circleEnd({ context, setImageURL });
-      setDrawing(false);
-    }
-  };
+  // const endDrawing = () => {
+  //   if (context) {
+  //     context.closePath();
+  //     rectangleEnd({ context, setImageURL });
+  //     circleEnd({ context, setImageURL });
+  //     setDrawing(false);
+  //   }
+  // };
 
-  const outDrawing = () => {
-    if (context) {
-      context.closePath();
-      rectangleEnd({ context, setImageURL });
-      circleEnd({ context, setImageURL });
-      setDrawing(false);
-    }
-  };
+  // const outDrawing = () => {
+  //   if (context) {
+  //     context.closePath();
+  //     rectangleEnd({ context, setImageURL });
+  //     circleEnd({ context, setImageURL });
+  //     setDrawing(false);
+  //   }
+  // };
 
   return (
     <>
@@ -208,10 +201,26 @@ export const Canvas = ({
           ref={canvasRef}
           width={width}
           height={height}
-          onMouseDown={startDrawing}
-          onMouseMove={draw}
-          onMouseUp={endDrawing}
-          onMouseOut={outDrawing}
+          onMouseDown={(e) =>
+            startDrawing({
+              e,
+              context,
+              tool,
+              color,
+              stroke,
+              setStartX,
+              setStartY,
+              setImageURL,
+              setDrawing,
+              dispatch,
+              undoIndex,
+            })
+          }
+          onMouseMove={(e) =>
+            draw({ e, context, drawing, tool, startX, startY, imageURL })
+          }
+          onMouseUp={() => endDrawing({ context, setImageURL, setDrawing })}
+          onMouseOut={() => outDrawing({ context, setImageURL, setDrawing })}
         />
       </div>
     </>
