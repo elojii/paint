@@ -1,0 +1,39 @@
+.container {
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.pages {
+  margin-right: 5px;
+  border: 1px solid #ddd;
+  padding: 5px;
+}
+
+.currentPage {
+  margin-right: 5px;
+  border: 1px solid #ff82f2;
+  padding: 5px;
+}
+
+.backwardArrow {
+  width: 25px;
+  height: auto;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+}
+
+.backwardArrow:hover {
+  transform: scale(1.2); /* Збільшення розміру на 20% */
+}
+
+.forwardArrow {
+  width: 25px;
+  height: auto;
+  transform: rotate(180deg);
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+}
+
+.forwardArrow:hover {
+  transform: rotate(180deg) scale(1.2);
+}
